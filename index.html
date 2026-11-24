@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Conductos">
+<meta name="color-scheme" content="light dark">
+<title>Calculadora de conductos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f4f5f2;--card:#fff;--ink:#17262e;--muted:#5d6b72;--line:#d7dcd8;--accent:#c98a00;--accent-ink:#17262e;--res:#eef2ee;--bad:#b3261e;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181c;--card:#18242a;--ink:#e8eeea;--muted:#9aa8ae;--line:#2b3a41;--accent:#e6a817;--accent-ink:#10181c;--res:#1f2f36;--bad:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10181c;--card:#18242a;--ink:#e8eeea;--muted:#9aa8ae;--line:#2b3a41;--accent:#e6a817;--accent-ink:#10181c;--res:#1f2f36;--bad:#ff8a80;color-scheme:dark}
+*{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:8px 0 2px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.95rem}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}.wide{grid-column:1/-1}}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;border-top:4px solid var(--accent)}
+h2{font-size:1.05rem;margin:0 0 12px;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;font:inherit;font-size:1.05rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;min-height:46px}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.out{background:var(--res);border-radius:8px;padding:12px;margin-top:4px}
+.out div{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}
+.out div:last-child{border-bottom:0}
+.out b{font-weight:600;font-size:1.1rem}
+.warn{color:var(--bad);font-size:.9rem;margin:8px 0 0}
+.combos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+button{font:inherit;font-weight:500;background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:10px 14px;min-height:44px;cursor:pointer}
+.note{color:var(--muted);font-size:.85rem;margin:10px 0 0}
+details{margin-top:12px}summary{cursor:pointer;color:var(--muted);font-size:.9rem;min-height:32px}
+</style>
+</head>
+<body>
+<main>
+<h1>Calculadora de conductos</h1>
+<p class="sub">Predimensionado de conductos de climatización: caudal, diámetro equivalente, velocidad y pérdida de carga.</p>
+<div class="grid">
+
+<section>
+<h2>Caudal</h2>
+<div class="row">
+<div><label for="qh">m³/h</label><input id="qh" inputmode="decimal" value="1000"></div>
+<div><label for="qs">m³/s</label><input id="qs" inputmode="decimal"></div>
+</div>
+<details><summary>Ajustes de cálculo</summary>
+<label for="eps" style="margin-top:8px">Rugosidad del conducto (mm)</label>
+<input id="eps" inputmode="decimal" value="0.9">
+<p class="note">Valor provisional. Conviene ajustarlo comparando con los resultados de ISOVER.</p></details>
+</section>
+
+<section>
+<h2>Dimensionar un conducto circular</h2>
+<div class="row">
+<div><label for="crit">Criterio</label><select id="crit"><option value="v">Velocidad (m/s)</option><option value="p">Pérdida de carga (Pa/m)</option></select></div>
+<div><label for="tv">Valor objetivo</label><input id="tv" inputmode="decimal" value="5"></div>
+</div>
+<div class="out" id="o1"></div>
+</section>
+
+<section class="wide">
+<h2>Conducto rectangular</h2>
+<div class="row" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
+<div><label for="a">Lado a (cm)</label><input id="a" inputmode="decimal" value="40"></div>
+<div><label for="b">Lado b (cm)</label><input id="b" inputmode="decimal" value="25"></div>
+<div><label for="len">Longitud (m)</label><input id="len" inputmode="decimal" value="10"></div>
+</div>
+<div class="out" id="o2"></div>
+<p class="warn" id="w"></p>
+<h2 style="margin-top:16px">Combinaciones aconsejadas</h2>
+<p class="note" style="margin:0">Medidas cercanas al diámetro equivalente calculado, con relación entre lados no mayor de 5 a 1. Toca una para aplicarla.</p>
+<div class="combos" id="combos"></div>
+</section>
+
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const RHO=1.2,NU=1.5e-5;
+const num=el=>parseFloat(String(el.value).replace(',','.'));
+const fmt=(x,d=1)=>x.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+const deq=(a,b)=>1.3*Math.pow(a*b,0.625)/Math.pow(a+b,0.25);
+function dp(Q,D,eps){
+  const v=Q/(Math.PI*D*D/4),Re=v*D/NU;let f;
+  if(Re<2300)f=64/Re;else{const t=Math.log10(eps/(3.7*D)+5.74/Math.pow(Re,0.9));f=0.25/(t*t);}
+  return f*RHO*v*v/2/D;
+}
+function dFromDp(Q,t,eps){let lo=0.02,hi=3;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(dp(Q,m,eps)>t)lo=m;else hi=m;}return(lo+hi)/2;}
+function syncFlow(from){
+  if(from==='h'){const h=num($('qh'));$('qs').value=isFinite(h)?(h/3600).toFixed(4):'';}
+  else{const s=num($('qs'));$('qh').value=isFinite(s)?(s*3600).toFixed(1):'';}
+  calc();
+}
+function row(l,v){return'<div><span>'+l+'</span><b>'+v+'</b></div>';}
+function calc(){
+  const Q=num($('qh'))/3600,eps=num($('eps'))/1000||0.0009,t=num($('tv'));
+  const o1=$('o1'),o2=$('o2'),w=$('w');
+  if(!(Q>0)||!(t>0)){o1.innerHTML='<div>Introduce un caudal y un valor objetivo.</div>';o2.innerHTML='';$('combos').innerHTML='';w.textContent='';return;}
+  const D=$('crit').value==='v'?Math.sqrt(4*Q/(Math.PI*t)):dFromDp(Q,t,eps);
+  const v=Q/(Math.PI*D*D/4),p=dp(Q,D,eps),Dmm=D*1000;
+  o1.innerHTML=row('Diámetro circular',fmt(Dmm,0)+' mm')+row('Lado de conducto cuadrado',fmt(Dmm/1.0932,0)+' mm')+row('Velocidad',fmt(v,2)+' m/s')+row('Pérdida de carga',fmt(p,2)+' Pa/m');
+  const a=num($('a')),b=num($('b')),L=num($('len'));
+  if(a>0&&b>0){
+    const De=deq(a/100,b/100),pr=dp(Q,De,eps),vr=Q/((a/100)*(b/100)),ratio=Math.max(a,b)/Math.min(a,b);
+    o2.innerHTML=row('Diámetro equivalente',fmt(De*1000,0)+' mm')+row('Velocidad en el conducto',fmt(vr,2)+' m/s')+row('Pérdida de carga',fmt(pr,2)+' Pa/m')+(L>0?row('Pérdida de carga total',fmt(pr*L,1)+' Pa'):'');
+    w.textContent=ratio>5?'La relación entre lados es mayor de 5 a 1. Conviene un conducto más cuadrado.':'';
+  }else{o2.innerHTML='<div>Introduce los lados a y b.</div>';w.textContent='';}
+  const list=[];
+  for(let x=10;x<=200;x+=5)for(let y=10;y<=x;y+=5){
+    if(x/y>5)continue;
+    const d=deq(x/100,y/100);
+    if(Math.abs(d-D)/D<=0.05)list.push({x,y,r:x/y});
+  }
+  list.sort((m,n)=>m.r-n.r);
+  $('combos').innerHTML=list.length?list.slice(0,8).map(c=>'<button data-a="'+c.x+'" data-b="'+c.y+'">'+c.x+' × '+c.y+' cm</button>').join(''):'<span class="note">No hay combinaciones en ese rango.</span>';
+}
+$('qh').addEventListener('input',()=>syncFlow('h'));
+$('qs').addEventListener('input',()=>syncFlow('s'));
+['crit','tv','eps','a','b','len'].forEach(id=>$(id).addEventListener('input',calc));
+$('combos').addEventListener('click',e=>{const t=e.target.closest('button');if(t){$('a').value=t.dataset.a;$('b').value=t.dataset.b;calc();}});
+syncFlow('h');
+</script>
+</body>
+</html>
